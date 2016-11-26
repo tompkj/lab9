@@ -10,25 +10,61 @@ from utils import *
 def initialize_weights(training_points):
     """Assigns every training point a weight equal to 1/N, where N is the number
     of training points.  Returns a dictionary mapping points to weights."""
-    raise NotImplementedError
+    N = len(training_points)
+    point_weights = {}
+    for p in training_points:
+        point_weights[p]= make_fraction(1, N)
+    return point_weights
 
 def calculate_error_rates(point_to_weight, classifier_to_misclassified):
     """Given a dictionary mapping training points to their weights, and another
     dictionary mapping classifiers to the training points they misclassify,
     returns a dictionary mapping classifiers to their error rates."""
-    raise NotImplementedError
+    classifier_to_error = {}    
+    classifiers = classifier_to_misclassified.keys()    
+    
+    for c in classifiers:  
+        misclassified = classifier_to_misclassified[c]
+        error_rate = 0
+        for m in misclassified:
+            error_rate += point_to_weight[m]
+        classifier_to_error[c]= error_rate
+    return classifier_to_error
 
 def pick_best_classifier(classifier_to_error_rate, use_smallest_error=True):
     """Given a dictionary mapping classifiers to their error rates, returns the
     best* classifier, or raises NoGoodClassifiersError if best* classifier has
     error rate 1/2.  best* means 'smallest error rate' if use_smallest_error
     is True, otherwise 'error rate furthest from 1/2'."""
-    raise NotImplementedError
+    c = classifier_to_error_rate
+    if use_smallest_error:
+        # choose error that is smallest
+        smallest_error = min(c, key = c.get)
+    else:
+        # choose abs error furthest from 1/2
+        small_error_below =  min(c, key = c.get)
+        small_error_above =  max(c, key = c.get)
+        if abs(c[small_error_above]-make_fraction(1,2)) > abs(c[small_error_below]-make_fraction(1,2)):
+            smallest_error = small_error_above
+        elif abs(c[small_error_above]-make_fraction(1,2)) == abs(c[small_error_below]-make_fraction(1,2)):
+            smallest_error = sorted([small_error_above, small_error_below])[0]
+        else:
+            smallest_error = small_error_below
+
+    if c[smallest_error] == make_fraction(1,2):
+        raise NoGoodClassifiersError
+    else:
+        return smallest_error
 
 def calculate_voting_power(error_rate):
     """Given a classifier's error rate (a number), returns the voting power
     (aka alpha, or coefficient) for that classifier."""
-    raise NotImplementedError
+    if error_rate == 1:
+        return -INF
+    elif error_rate == 0:
+        return INF
+                
+    return make_fraction(0.5*ln((1-error_rate)/error_rate))
 
 def get_overall_misclassifications(H, training_points, classifier_to_misclassified):
     """Given an overall classifier H, a list of all training points, and a
@@ -64,9 +100,9 @@ def adaboost(training_points, classifier_to_misclassified,
 
 #### SURVEY ####################################################################
 
-NAME = None
-COLLABORATORS = None
-HOW_MANY_HOURS_THIS_LAB_TOOK = None
-WHAT_I_FOUND_INTERESTING = None
-WHAT_I_FOUND_BORING = None
-SUGGESTIONS = None
+NAME = "Joseph Lowman"
+COLLABORATORS = ""
+HOW_MANY_HOURS_THIS_LAB_TOOK = 2
+WHAT_I_FOUND_INTERESTING = ""
+WHAT_I_FOUND_BORING = ""
+SUGGESTIONS = ""
