@@ -37,13 +37,18 @@ def pick_best_classifier(classifier_to_error_rate, use_smallest_error=True):
     error rate 1/2.  best* means 'smallest error rate' if use_smallest_error
     is True, otherwise 'error rate furthest from 1/2'."""
     c = classifier_to_error_rate
+    c_tup = sorted(c.items())
+#    print "c tup is : ", c_tup
+
     if use_smallest_error:
         # choose error that is smallest
-        smallest_error = min(c, key = c.get)
+        smallest_error = min(c_tup, key = lambda i: i[-1])[0]
+#        print "smallest error is :", smallest_error
     else:
         # choose abs error furthest from 1/2
-        small_error_below =  min(c, key = c.get)
-        small_error_above =  max(c, key = c.get)
+        small_error_below =  min(c_tup, key = lambda i: i[-1])[0]
+        small_error_above =  max(c_tup, key = lambda i: i[-1])[0]
+
         if abs(c[small_error_above]-make_fraction(1,2)) > abs(c[small_error_below]-make_fraction(1,2)):
             smallest_error = small_error_above
         elif abs(c[small_error_above]-make_fraction(1,2)) == abs(c[small_error_below]-make_fraction(1,2)):
@@ -64,7 +69,7 @@ def calculate_voting_power(error_rate):
     elif error_rate == 0:
         return INF
                 
-    return make_fraction(0.5*ln((1-error_rate)/error_rate))
+    return 0.5*ln((1-error_rate)/error_rate)
 
 def get_overall_misclassifications(H, training_points, classifier_to_misclassified):
     """Given an overall classifier H, a list of all training points, and a
@@ -134,6 +139,7 @@ def adaboost(training_points, classifier_to_misclassified,
         classifier_to_error_rate = calculate_error_rates(point_to_weight, classifier_to_misclassified)
         try:
             h = pick_best_classifier(classifier_to_error_rate, use_smallest_error)
+            classifier_to_error_rate.pop(h)
         except NoGoodClassifiersError:
             exit_condition3 = True
             
@@ -151,7 +157,7 @@ def adaboost(training_points, classifier_to_misclassified,
 
 NAME = "Joseph Lowman"
 COLLABORATORS = ""
-HOW_MANY_HOURS_THIS_LAB_TOOK = 2
+HOW_MANY_HOURS_THIS_LAB_TOOK = 3
 WHAT_I_FOUND_INTERESTING = ""
 WHAT_I_FOUND_BORING = ""
 SUGGESTIONS = ""
