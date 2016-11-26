@@ -139,18 +139,22 @@ def adaboost(training_points, classifier_to_misclassified,
         classifier_to_error_rate = calculate_error_rates(point_to_weight, classifier_to_misclassified)
         try:
             h = pick_best_classifier(classifier_to_error_rate, use_smallest_error)
-            classifier_to_error_rate.pop(h)
+            
         except NoGoodClassifiersError:
             exit_condition3 = True
-            
-        voting_power = calculate_voting_power(classifier_to_error_rate[h])
+            return H
+        print "best classifier is : ", h
+        try:
+            voting_power = calculate_voting_power(classifier_to_error_rate[h])
+        except ValueError:
+            print "ValueError: h was : ", h, "and error_rate was: ", classifier_to_error_rate[h]
         H.append((h, voting_power))
         H_misclassified_points = get_overall_misclassifications(H, training_points, classifier_to_misclassified)
         point_to_weight = update_weights(point_to_weight, H_misclassified_points, classifier_to_error_rate[h])      
         
         exit_condition1 = is_good_enough(H, training_points, classifier_to_misclassified, mistake_tolerance)
         exit_condition2 = (rounds >= max_rounds)
-        
+        if rounds >= max_rounds: print "maximum number of rounds reached"
     return H
     
 #### SURVEY ####################################################################
