@@ -136,21 +136,21 @@ def adaboost(training_points, classifier_to_misclassified,
     
     while not exit_condition1 and not exit_condition2 and not exit_condition3:
         rounds +=1
-        classifier_to_error_rate = calculate_error_rates(point_to_weight, classifier_to_misclassified)
+        classifier_to_error_rate = calculate_error_rates(point_to_weight, classifier_to_misclassified) # step 1
         try:
-            h = pick_best_classifier(classifier_to_error_rate, use_smallest_error)
+            h = pick_best_classifier(classifier_to_error_rate, use_smallest_error) # step 2
             
         except NoGoodClassifiersError:
             exit_condition3 = True
             return H
         print "best classifier is : ", h
         try:
-            voting_power = calculate_voting_power(classifier_to_error_rate[h])
+            voting_power = calculate_voting_power(classifier_to_error_rate[h]) # step 3
         except ValueError:
             print "ValueError: h was : ", h, "and error_rate was: ", classifier_to_error_rate[h]
-        H.append((h, voting_power))
-        H_misclassified_points = get_overall_misclassifications(H, training_points, classifier_to_misclassified)
-        point_to_weight = update_weights(point_to_weight, H_misclassified_points, classifier_to_error_rate[h])      
+        H.append((h, voting_power)) # step 4
+        H_misclassified_points = get_overall_misclassifications(H, training_points, classifier_to_misclassified)     
+        point_to_weight = update_weights(point_to_weight, classifier_to_misclassified[h], classifier_to_error_rate[h]) # step 5    
         
         exit_condition1 = is_good_enough(H, training_points, classifier_to_misclassified, mistake_tolerance)
         exit_condition2 = (rounds >= max_rounds)
@@ -161,7 +161,7 @@ def adaboost(training_points, classifier_to_misclassified,
 
 NAME = "Joseph Lowman"
 COLLABORATORS = ""
-HOW_MANY_HOURS_THIS_LAB_TOOK = 3
+HOW_MANY_HOURS_THIS_LAB_TOOK = 4
 WHAT_I_FOUND_INTERESTING = ""
 WHAT_I_FOUND_BORING = ""
 SUGGESTIONS = ""
